@@ -47,10 +47,75 @@ module Backbitr
 
   class Repository
 
+    class Entry
+
+      attr_reader :path
+
+      def initialize(path)
+        @path = path
+      end
+
+      def self.select_for(file)
+        case File.extname(file)[1..-1]
+        when "textile"
+          Post.new(file)
+        else
+          raise "ops"
+        end
+      end
+
+      def basename
+        File.basename(path)
+      end
+    end
+
+    class Post < Entry
+      def parse_basename
+        @time ||= Time.local(*basename[0...8].split("-").map{|s| s.to_i})
+        @title ||= basename[9..-1]
+      end
+
+      def time
+        parse_basename
+        @time
+      end
+      alias :date :time
+
+      def title
+        parse_basename
+        @title
+      end
+    end
+
+    class Entries < Array
+      attr_reader :repository
+      def initialize(repos)
+        @repository = repos
+        super()
+      end
+
+      def read!(path = "posts")
+        dir_pattern = "#{repository.path}/#{path}/**/*"
+        Dir[dir_pattern].each{|entry|
+          push Entry.select_for(entry)
+        }
+        self
+      end
+    end
+
     attr_reader :path
 
     include FUtils
-    
+
+    def entries
+      create unless exist?
+      unless @entries
+        @entries = Entries.new(self)
+        @entries.read!
+      end
+      @entries
+    end
+
     def initialize(path)
       @path = path
     end
@@ -68,10 +133,6 @@ module Backbitr
         mkdir_p(path)
         populate
       end
-    end
-
-    def read
-      create unless exist?
     end
 
     def populate
@@ -115,7 +176,11 @@ module Backbitr
 
 end
 
-Backbitr.repository.read
+Backbitr.repository.entries.each do |post|
+  puts
+  p post.title
+    p post.date
+end
 
 =begin
 Local Variables:
