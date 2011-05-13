@@ -50,6 +50,7 @@ module Backbitr
     class Entry
 
       attr_reader :path
+      attr_reader :metadata
 
       def initialize(path)
         @path = path
@@ -70,6 +71,9 @@ module Backbitr
     end
 
     class Post < Entry
+
+      MetaData = ["Date", "Foo", "Bar"]
+
       def parse_basename
         @time ||= Time.local(*basename[0...8].split("-").map{|s| s.to_i})
         @title ||= basename[9..-1]
@@ -85,9 +89,31 @@ module Backbitr
         parse_basename
         @title
       end
+
+      def file_contents
+        @file_contents ||= File.readlines(path)
+      end
+
+      def metadata
+        unless @metadata
+          @metadata = {}
+          file_contents.each do |line|
+            if line =~ /^# (#{MetaData.join('|')}): (.+)/
+              @metadata[$1.downcase.to_sym] = $2.strip
+              @file_contents.delete(line)
+            end
+          end
+        end
+        @metadata
+      end
+
+      def body
+        file_contents.join.strip
+      end
     end
 
     class Entries < Array
+
       attr_reader :repository
       def initialize(repos)
         @repository = repos
@@ -178,8 +204,11 @@ end
 
 Backbitr.repository.entries.each do |post|
   puts
-  p post.title
-    p post.date
+  # p post.title
+  # p post.date
+  p post.metadata
+
+  p post.body
 end
 
 =begin
