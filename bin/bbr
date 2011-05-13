@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.join(File.dirname(__FILE__), "../lib")
+
+require "backbitr"
+
+require "optparse"
+
+opts = OptionParser.new do |opts|
+  opts.banner = "backbitr"
+end
+
+
+begin
+  opts.parse!
+rescue OptionParser::InvalidOption
+  puts "bbr: #{$!.message}"
+  puts "bbr: try 'bbr --help' for more information"
+  exit 1
+end
+
+
+
+=begin
+Local Variables:
+  mode:ruby
+  fill-column:70
+  indent-tabs-mode:nil
+  ruby-indent-level:2
+End:
+=end
