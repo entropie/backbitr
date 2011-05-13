@@ -4,13 +4,34 @@
 #
 
 require "pp"
+require "fileutils"
 
 require "rubygems"
 require "nokogiri"
 
-
 module Backbitr
 
+  class LOG
+    class << self
+      def <<(os)
+        os = [LOG_DEF, os] unless os.kind_of?(Array)
+        puts "|> #{os.first}  #{os.last}"
+      end
+    end
+  end
+
+  module FUtils
+    def mkdir_p(arg)
+      LOG << "mkdir_p '#{arg.to_s}'"
+      FileUtils.mkdir_p(arg)
+    end
+
+    def copy_r(src, dest)
+      LOG << "cp -r '#{src}' '#{dest}'"
+      FileUtils.cp_r(src, dest)
+    end
+  end
+  
   module Ex
     class BBRError < Exception; end
   end
@@ -19,17 +40,45 @@ module Backbitr
 
   Version = [0, 0, 1, 'pre']
 
+  LOG_DEF = 0
+  LOG_DEB = 5
+
   DefaultRepository = "~/.bbr"
 
   class Repository
 
     attr_reader :path
 
+    include FUtils
+    
     def initialize(path)
       @path = path
     end
+
     def inspect
       %Q'<BBR: "#{path}">'
+    end
+
+    def exist?
+      File.exist?(path)
+    end
+
+    def create
+      unless exist?
+        mkdir_p(path)
+        populate
+      end
+    end
+
+    def read
+      create unless exist?
+    end
+
+    def populate
+      skel = File.join(Source, 'data/skel')
+      Dir.glob("#{skel}/*").each do |skel_entry|
+        copy_r(skel_entry, path)
+      end
     end
   end
 
@@ -66,7 +115,7 @@ module Backbitr
 
 end
 
-include Backbitr
+Backbitr.repository.read
 
 =begin
 Local Variables:
