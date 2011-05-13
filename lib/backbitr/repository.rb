@@ -27,6 +27,10 @@ module Backbitr
       def basename
         File.basename(path)
       end
+
+      def inspect
+        %Q'<#{self.class.to_s.split("::").last}: "#{title}" "#{path}">'
+      end
     end
 
     class Post < Entry
@@ -68,6 +72,10 @@ module Backbitr
 
       def body
         @html ||= RedCloth.new(file_contents.join.strip).to_html
+      end
+
+      def with_filter
+        Filter.filter!(self)
       end
     end
 
