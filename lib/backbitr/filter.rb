@@ -15,6 +15,7 @@ module Backbitr
           LOG << [LOG_DEB, "  Filter add: #{filter}"]
           require filter
         end
+        @filter_loaded = true
       end
 
       def filter!(post)
