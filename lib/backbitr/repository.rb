@@ -94,12 +94,17 @@ module Backbitr
         Filter.filter!(self)
       end
 
-      def to_s
+      def to_s(full = true)
         ret = ""
-        ret << title << "\n" << ("-"*title.size) << "\n" << raw_body << "\n\n"
+        text = full ? raw_body : shortened_body
+        ret << title << "\n" << ("-"*title.size) << "\n" << text << "\n\n"
         ret << metadata.to_s
         ret << "\n"
         ret
+      end
+
+      def shortened_body
+        raw_body[0..70]
       end
     end
 
