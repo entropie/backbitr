@@ -37,6 +37,8 @@ module Backbitr
 
       MetaData = ["Date", "Foo", "Bar", "Tags"]
 
+      attr_accessor :filtered
+
       def parse_basename
         @time ||= Time.local(*basename[0...8].split("-").map{|s| s.to_i})
         @title ||= basename[9..-1]

@@ -19,6 +19,7 @@ module Backbitr
   require "backbitr/exceptions"
   require "backbitr/log"
   require "backbitr/futils"
+  require "backbitr/filter"
   require "backbitr/repository"
 
   Version = [0, 0, 1, 'pre']
@@ -63,11 +64,11 @@ end
 
 Backbitr.repository.entries.each do |post|
   puts
-  p post.title
-  p post.date
-  p post.metadata
+  # p post.title
+  # p post.date
+  # p post.metadata
 
-  puts post.body
+  p post.with_filter
 end
 
 =begin
