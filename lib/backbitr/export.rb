@@ -21,7 +21,7 @@ module Backbitr
     def export
       LOG << "Starting to export to #{directory}"
       make_layout
-      make_page(repository.entries.first(10), 'index.html')
+      make_page(repository.entries.first(10).sort_by{|e| e.ctime}.reverse, 'index.html')
       nil
     end
 

@@ -64,6 +64,10 @@ module Backbitr
         [@time, @title]
       end
 
+      def ctime
+        File.ctime(path)
+      end
+
       def date
         unless @date
           logwhat = nil
@@ -76,7 +80,7 @@ module Backbitr
               mdate
             else
               logwhat = "File.ctime"
-              File.new(path).ctime
+              ctime
             end
           LOG << [LOG_DEB, "Selecting date from #{logwhat}: #{@date}"]
         end
