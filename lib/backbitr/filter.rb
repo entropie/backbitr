@@ -9,8 +9,18 @@ module Backbitr
   class Filter
     class << self
 
+      def load_filter!
+        LOG << [LOG_DEB, "Loading Filter... "]
+        Dir[File.join(Backbitr.repository.path, 'filter') + "/*.rb"].each do |filter|
+          LOG << [LOG_DEB, "  Filter add: #{filter}"]
+          require filter
+          #require filter
+        end
+      end
+
       def filter!(post)
-        LOG << "Invoking filters for: #{post.title}"
+        load_filter! unless @filter_loaded
+        LOG << [LOG_DEB, "Invoking filters for: #{post.title}"]
         Filter.all.inject(""){|m, filter|
           filter.new(post).apply_all
         }
@@ -46,7 +56,7 @@ module Backbitr
     def apply_rules
       post.filtered = post.body.to_s
       self.class.rules.inject(post.filtered) do |m, r|
-        LOG << "  Filter: #{r}"
+        LOG << [LOG_DEB, "  Filter: #{self.class.to_s.split("::").last}"]
         apply(m, r)
       end
     end

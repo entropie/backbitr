@@ -4,7 +4,7 @@
 #
 
 
-module Backbitr::Filter
+module Backbitr
   class NP < Filter
 
     rule nil

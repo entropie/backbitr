@@ -9,6 +9,22 @@ require "fileutils"
 require "rubygems"
 require "nokogiri"
 require "RedCloth"
+require "term/ansicolor"
+
+class String
+  include Term::ANSIColor
+end
+
+class Time
+  def to_s(what = :def)
+    fmtstr =
+      case what
+      when :def
+        "%Y-%m-%d"
+      end
+    strftime(fmtstr)
+  end
+end
 
 module Backbitr
 

@@ -17,6 +17,7 @@ opts = OptionParser.new do |opts|
   opts.on("-L", "--long-list", "Prints recent posts to STDOUT") do |arg|
     Backbitr.repository.entries.first(10).each do |post|
       puts post.to_s
+      puts(("-"*60).white)
     end
     exit 0
   end
@@ -24,6 +25,15 @@ opts = OptionParser.new do |opts|
   opts.on("-l", "--list", "Prints recent posts to STDOUT") do |arg|
     Backbitr.repository.entries.first(10).each do |post|
       puts post.to_s(false)
+      puts(("-"*60).white)
+    end
+    exit 0
+  end
+
+  opts.on("-H", "--html", "Prints recent posts to STDOUT") do |arg|
+    Backbitr.repository.entries.first(10).each do |post|
+      puts post.with_filter
+      puts(("-"*60).white)
     end
     exit 0
   end

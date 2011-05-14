@@ -41,7 +41,7 @@ module Backbitr
       end
 
       def inspect
-        %Q'<#{self.class.to_s.split("::").last}: "#{title}" "#{path}">'
+        %Q'<#{self.class.to_s.split("::").last}: #{date.to_s} "#{title}" "#{path}">'
       end
     end
 
@@ -52,13 +52,28 @@ module Backbitr
       def parse_basename
         @time ||= Time.local(*basename[0...8].split("-").map{|s| s.to_i})
         @title ||= basename[9..-1]
+        [@time, @title]
       end
 
-      def time
-        parse_basename
-        @time
+      def date
+        unless @date
+          logwhat = nil
+          @date =
+            if mdate = metadata[:date]
+              logwhat = "metadata"
+              Time.local(*mdate.split("-").map{|s| s.to_i})
+            elsif mdate = parse_basename.first
+              logwhat = "filename"
+              mdate
+            else
+              logwhat = "File.ctime"
+              File.new(path).ctime
+            end
+          LOG << [LOG_DEB, "Selecting date from #{logwhat}: #{@date}"]
+        end
+        @date
       end
-      alias :date :time
+      alias :time :date
 
       def title
         parse_basename
@@ -66,7 +81,11 @@ module Backbitr
       end
 
       def file_contents
-        @file_contents ||= File.readlines(path)
+        unless @file_contents
+          @file_contents = File.readlines(path)
+          metadata
+        end
+        @file_contents
       end
 
       # FIXME: why is a newline between metadata entries needed?
@@ -88,18 +107,19 @@ module Backbitr
       end
 
       def raw_body
-        metadata
         file_contents.join.strip
       end
 
       def html_body
-        metadata
         RedCloth.new(file_contents.join.strip).to_html
       end
 
       def with_filter
-        metadata
         Filter.filter!(self)
+      end
+
+      def display_date
+        date
       end
 
       def to_s(full = true)
@@ -108,6 +128,9 @@ module Backbitr
         ret << title << "\n" << ("-"*title.size) << "\n" << text << "\n\n"
         ret << metadata.to_s
         ret << "\n"
+        ret << "Display Date: " << display_date.to_s.green
+        ret << "\n"
+        ret << path << "\n"
         ret
       end
 

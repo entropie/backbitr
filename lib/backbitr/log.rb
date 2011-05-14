@@ -9,7 +9,7 @@ module Backbitr
     class << self
       def <<(os)
         os = [LOG_DEF, os] unless os.kind_of?(Array)
-        puts "|> #{os.first}  #{os.last}"
+        puts "|> ".red + os.first.to_s.red.bold + " #{os.last}".white
       end
     end
   end
