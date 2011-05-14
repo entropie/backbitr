@@ -20,6 +20,10 @@ module Backbitr
       def target
         self[:target].to_sym rescue nil
       end
+
+      def tags
+        self[:tags].split(",").map{|t| t.strip.to_sym} rescue []
+      end
     end
 
     class Entry
@@ -120,7 +124,7 @@ module Backbitr
       end
 
       def html_body
-        data = file_contents.join.strip
+        data = with_filter
         redcloth = RedCloth.new(data)
         redcloth.hard_breaks = false
         "<div class='bbr-entry' id='#{identifier}'>%s</div>" % redcloth.to_html

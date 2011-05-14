@@ -53,6 +53,10 @@ module Backbitr
       @post = post
     end
 
+    def nokogiri(data)
+      Nokogiri::HTML::DocumentFragment.parse(data)
+    end
+
     def apply_rules
       post.filtered = post.body.to_s
       self.class.rules.inject(post.filtered) do |m, r|

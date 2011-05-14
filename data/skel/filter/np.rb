@@ -5,12 +5,19 @@
 
 
 module Backbitr
-  class NP < Filter
+  class Metadata < Filter
 
-    rule nil
+    rule /^/
 
     def apply(body, rule)
-      body << "\n<div class='np'><span class='uimp'>NP(vlc):</span> <em>Stephen King - Die Arena - 38 - Die Arena</em>"
+      kws = {
+        :date => post.date,
+        :tags => post.metadata.tags.map{|t| t}.join(", ")
+      }
+      mds = kws.map{|k, v| "<div class='#{k}'>#{v}</div>\n"}.join
+      md = "<div class='bbr-metadata'>%s</div>" % mds
+      body = md << "\n\n" << body
+      body
     end
   end
 end
