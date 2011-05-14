@@ -45,6 +45,8 @@ module Backbitr
         if target = post.metadata.target
           if node = skel.at_css("#bbr-content #bbr-content-%s" % target)
             node.add_child(doc)
+          elsif node = skel.at_css("#bbr-content > .default" % target)
+            node.add_child(doc)
           else
             raise Ex::TargetNotFound, "'#{target}' in metadata declared but not found in document"
           end
