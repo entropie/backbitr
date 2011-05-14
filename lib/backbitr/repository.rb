@@ -107,6 +107,10 @@ module Backbitr
         @metadata
       end
 
+      def identifier
+        (date.to_s + "-" + title).split(".").first
+      end
+
       def body
         raw_body
       end
@@ -119,7 +123,7 @@ module Backbitr
         data = file_contents.join.strip
         redcloth = RedCloth.new(data)
         redcloth.hard_breaks = false
-        redcloth.to_html
+        "<div class='bbr-entry' id='#{identifier}'>%s</div>" % redcloth.to_html
       end
 
       def to_nokogiri
