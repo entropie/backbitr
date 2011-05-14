@@ -62,15 +62,6 @@ module Backbitr
 
 end
 
-Backbitr.repository.entries.each do |post|
-  puts
-  # p post.title
-  # p post.date
-  # p post.metadata
-
-  p post.with_filter
-end
-
 =begin
 Local Variables:
   mode:ruby

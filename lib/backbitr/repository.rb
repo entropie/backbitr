@@ -33,9 +33,18 @@ module Backbitr
       end
     end
 
-    class Post < Entry
+    class MetaData < Hash
 
-      MetaData = ["Date", "Foo", "Bar", "Tags"]
+      Keys = ["Date", "Foo", "Bar", "Tags"]
+      def to_s
+        "Metadata: " +
+        map{|md|
+          "%s:%s" % [md.first.to_s.capitalize, md.last]
+        }.join("; ")
+      end
+    end
+
+    class Post < Entry
 
       attr_accessor :filtered
 
@@ -59,11 +68,12 @@ module Backbitr
         @file_contents ||= File.readlines(path)
       end
 
+      # FIXME: why is a newline between metadata entries needed?
       def metadata
         unless @metadata
-          @metadata = {}
+          @metadata = MetaData.new
           file_contents.each do |line|
-            if line =~ /^# (#{MetaData.join('|')}): (.+)/
+            if line =~ /^# (#{MetaData::Keys.join('|')}): (.+)/
               @metadata[$1.downcase.to_sym] = $2.strip
               @file_contents.delete(line)
             end
@@ -76,8 +86,20 @@ module Backbitr
         @html ||= RedCloth.new(file_contents.join.strip).to_html
       end
 
+      def raw_body
+        file_contents.join.strip
+      end
+
       def with_filter
         Filter.filter!(self)
+      end
+
+      def to_s
+        ret = ""
+        ret << title << "\n" << ("-"*title.size) << "\n" << raw_body << "\n\n"
+        ret << metadata.to_s
+        ret << "\n"
+        ret
       end
     end
 
