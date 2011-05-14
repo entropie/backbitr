@@ -8,13 +8,17 @@ module Backbitr
 
     class MetaData < Hash
 
-      Keys = ["Date", "Foo", "Bar", "Tags"]
+      Keys = ["Date", "Foo", "Bar", "Tags", "Target"]
 
       def to_s
         "Metadata: " +
         map{|md|
           "%s:%s" % [md.first.to_s.capitalize, md.last]
         }.join("; ")
+      end
+
+      def target
+        self[:target].to_sym rescue nil
       end
     end
 
@@ -43,6 +47,7 @@ module Backbitr
       def inspect
         %Q'<#{self.class.to_s.split("::").last}: #{date.to_s} "#{title}" "#{path}">'
       end
+
     end
 
     class Post < Entry
@@ -113,6 +118,11 @@ module Backbitr
       def html_body
         RedCloth.new(file_contents.join.strip).to_html
       end
+
+      def to_nokogiri
+        @nokogiri ||= Nokogiri::HTML::DocumentFragment.parse(html_body)
+      end
+      alias :nokogiro :to_nokogiri
 
       def with_filter
         Filter.filter!(self)
@@ -193,6 +203,10 @@ module Backbitr
       Dir.glob("#{skel}/*").each do |skel_entry|
         copy_r(skel_entry, path)
       end
+    end
+
+    def export
+      p Exporter.new(self).export
     end
   end
 end

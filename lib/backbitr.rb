@@ -10,6 +10,7 @@ require "rubygems"
 require "nokogiri"
 require "RedCloth"
 require "term/ansicolor"
+require "haml"
 
 class String
   include Term::ANSIColor
@@ -37,6 +38,7 @@ module Backbitr
   require "backbitr/futils"
   require "backbitr/filter"
   require "backbitr/repository"
+  require "backbitr/export"
 
   Version = [0, 0, 1, 'pre']
 

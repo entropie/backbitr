@@ -15,6 +15,14 @@ module Backbitr
       LOG << "cp -r '#{src}' '#{dest}'"
       FileUtils.cp_r(src, dest)
     end
+
+    def write(file, mode = 'w+')
+      LOG << "writing to #{file} (#{mode})"
+      File.open(file, mode) { |fp|
+        yield fp
+      }
+      #LOG << [LOG_DEB, "written #{File.size(file)}bytes"]
+    end
   end
 
 end

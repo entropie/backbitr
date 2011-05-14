@@ -7,6 +7,9 @@ module Backbitr
 
   module Ex
     class BBRError < Exception; end
+
+    class ExportError < BBRError; end
+    class TargetNotFound < ExportError; end
   end
 
 end
