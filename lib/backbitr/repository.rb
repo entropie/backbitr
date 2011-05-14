@@ -6,6 +6,18 @@
 module Backbitr
   class Repository
 
+    class MetaData < Hash
+
+      Keys = ["Date", "Foo", "Bar", "Tags"]
+
+      def to_s
+        "Metadata: " +
+        map{|md|
+          "%s:%s" % [md.first.to_s.capitalize, md.last]
+        }.join("; ")
+      end
+    end
+
     class Entry
 
       attr_reader :path
@@ -30,17 +42,6 @@ module Backbitr
 
       def inspect
         %Q'<#{self.class.to_s.split("::").last}: "#{title}" "#{path}">'
-      end
-    end
-
-    class MetaData < Hash
-
-      Keys = ["Date", "Foo", "Bar", "Tags"]
-      def to_s
-        "Metadata: " +
-        map{|md|
-          "%s:%s" % [md.first.to_s.capitalize, md.last]
-        }.join("; ")
       end
     end
 
@@ -83,14 +84,21 @@ module Backbitr
       end
 
       def body
-        @html ||= RedCloth.new(file_contents.join.strip).to_html
+        raw_body
       end
 
       def raw_body
+        metadata
         file_contents.join.strip
       end
 
+      def html_body
+        metadata
+        RedCloth.new(file_contents.join.strip).to_html
+      end
+
       def with_filter
+        metadata
         Filter.filter!(self)
       end
 
