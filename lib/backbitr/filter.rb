@@ -55,24 +55,6 @@ module Backbitr
       apply_rules
     end
 
-    class NP < Filter
-
-      rule /$/m
-
-      def apply(body, rule)
-        body.gsub(rule, 'NP(vlc): Götz Widmann - Zoellner vom Vollzug abhalten auf der A4 - Drogen')
-      end
-    end
-
-    class NPA < Filter
-
-      rule /^/m
-
-      def apply(body, rule)
-        body.gsub(rule, 'start')
-      end
-    end
-
   end
 
 end

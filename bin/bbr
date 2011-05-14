@@ -8,6 +8,12 @@ require "optparse"
 
 opts = OptionParser.new do |opts|
   opts.banner = "backbitr"
+
+  opts.on("-S", "--setup <PATH>", "Sets up a new backbitr repository in PATH") do |arg|
+    Backbitr.repository.create
+    exit 0
+  end
+
 end
 
 
