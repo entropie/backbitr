@@ -116,7 +116,10 @@ module Backbitr
       end
 
       def html_body
-        RedCloth.new(file_contents.join.strip).to_html
+        data = file_contents.join.strip
+        redcloth = RedCloth.new(data)
+        redcloth.hard_breaks = false
+        redcloth.to_html
       end
 
       def to_nokogiri
