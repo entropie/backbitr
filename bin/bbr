@@ -14,9 +14,16 @@ opts = OptionParser.new do |opts|
     exit 0
   end
 
+  opts.on("-L", "--long-list", "Prints recent posts to STDOUT") do |arg|
+    Backbitr.repository.entries.first(10).each do |post|
+      puts post.to_s
+    end
+    exit 0
+  end
+
   opts.on("-l", "--list", "Prints recent posts to STDOUT") do |arg|
     Backbitr.repository.entries.first(10).each do |post|
-      puts post
+      puts post.to_s(false)
     end
     exit 0
   end
