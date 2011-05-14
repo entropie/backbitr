@@ -14,7 +14,6 @@ module Backbitr
         Dir[File.join(Backbitr.repository.path, 'filter') + "/*.rb"].each do |filter|
           LOG << [LOG_DEB, "  Filter add: #{filter}"]
           require filter
-          #require filter
         end
       end
 
