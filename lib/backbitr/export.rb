@@ -25,10 +25,6 @@ module Backbitr
       nil
     end
 
-    def to_file(file)
-      write(file) {|fp| fp.puts}
-    end
-
     def from_file(file)
       File.join(directory, file)
     end
