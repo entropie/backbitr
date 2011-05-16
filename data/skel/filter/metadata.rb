@@ -13,9 +13,10 @@ module Backbitr
       tags = post.metadata.tags
       kws = {
         :date => post.date,
-        :tags => "Filed In: <ul>" + tags.map{|t|
-          "<li><a href='/tag/#{t}' class='awesome orange small'>#{t}</a></li>"
-        }.join + "</ul>"
+        :tags => "<ul>" + tags.map{|t|
+          "<li><a href='./tag/#{t}' class='awesome magenta small'>#{t}</a></li>"
+        }.join + "</ul>",
+        :permalink => "<a href='./#{post.identifier}'>&middot;</a>"
       }
       kws.delete(:tags) if tags.empty?
 
