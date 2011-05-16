@@ -16,7 +16,7 @@ module Backbitr
         :tags => "<ul>" + tags.map{|t|
           "<li><a href='./tag/#{t}' class='awesome silver small'>#{t}</a></li>"
         }.join + "</ul>",
-        :permalink => "<a href='./#{post.identifier}'>&middot;</a>"
+        :permalink => "<a href='./#{post.identifier}.html'>&middot;</a>"
       }
       kws.delete(:tags) if tags.empty?
 
