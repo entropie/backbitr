@@ -53,6 +53,9 @@ module Backbitr
         %Q'<#{self.class.to_s.split("::").last}: #{date.to_s} "#{title}" "#{path}">'
       end
 
+      def to_page(file = nil)
+        Exporter::Page.new(self, file || "#{identifier}.html")
+      end
     end
 
     class Post < Entry
@@ -183,8 +186,17 @@ module Backbitr
 
       def newest(n = nil)
         all = self
-        sorted = all.sort_by{|e| e.date }.first(10).reverse
+        sorted = Entries.new(repository).push(*all.sort_by{|e| e.date }.first(10).reverse)
         n.kind_of?(Fixnum) ? sorted.first(n) : sorted
+      end
+
+      def first(n)
+        Entries.new(repository).push(*self[0..n])
+      end
+
+      def to_page(file)
+        file = "#{file}.html" unless file =~ /\.html$/
+        Exporter::Page.new(self, file)
       end
 
     end
