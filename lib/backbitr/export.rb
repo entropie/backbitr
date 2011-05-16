@@ -1,3 +1,4 @@
+# -*- coding: undecided -*-
 #
 #
 # Author:  Michael 'entropie' Trommer <mictro@gmail.com>
@@ -12,6 +13,7 @@ module Backbitr
       include FUtils
 
       attr_reader :entries, :file
+      attr_accessor :layout_file
 
       def initialize(entries, file)
         @entries = entries
@@ -19,17 +21,22 @@ module Backbitr
         @file = file
       end
 
+      def layout_file
+        @layout_file or "layout.html"
+      end
+
       def directory
         @directory ||= File.join(Backbitr.repository.path, "htdocs")
       end
 
       def layout
-        Nokogiri::HTML.parse(File.readlines(File.join(directory, "layout.html")).join)
+        Nokogiri::HTML.parse(File.readlines(File.join(directory, layout_file)).join)
       end
 
       def make(lyout = nil, default = nil)
         skel = lyout || layout
-        LOG << "Exporting #{entries.size} entries to #{@file}..."
+        LOG << "    Exporting #{entries.size} entries to #{@file}..."
+        wa = written_at
         entries.each do |post|
           doc = post.to_nokogiri
           if default.nil? and target = post.metadata.target
@@ -46,11 +53,72 @@ module Backbitr
           LOG << [LOG_DEB, "  added '#{post.title}' (#{post.date}) to #{default or target || 'default'} node"]
         end
 
-        op_file = File.join(directory, file)
+        entries.each do |e|
+          FileUtils.touch(e.path)
+        end if entries.size == 1
+
+        write_written_at!
         write(op_file){|fp|
           fp.puts skel.to_html
         }
         true
+      end
+
+      def make_maybe(*opts)
+        if need_update?
+          LOG << [LOG_DEB, "    update #{file} forced"]
+          make(*opts)
+        else
+          LOG << [LOG_DEB, "    skipping page #{file}"]
+        end
+      end
+
+      def written_file(nfile = nil)
+        nf = nfile || file
+        File.join(Backbitr.repository.path, "tmp", "#{nf}.written")
+      end
+
+      def write_written_at!
+        ts = Time.now
+        File.open(written_file, 'w+'){|fp| fp.puts(ts.to_i)}
+      end
+
+      def need_update?
+        ret = []
+        if entries.any?{|e| e.need_update?(e.written_file) }
+          ret << true
+        # elsif mtime != written_at
+        #   ret << true
+        else
+          ret << false
+        end
+        ret.include?(true)
+      end
+
+      def op_file
+        File.join(directory, file)
+      end
+
+      def exist?
+        File.exist?(op_file)
+      end
+
+      def created_at
+        exist? and File.ctime(op_file)
+      end
+
+      def modified_at
+        exist? and written_at
+      end
+
+      def written_at
+        Time.at(File.readlines(written_file).to_s.strip.to_i) if exist?
+      rescue
+        nil
+      end
+
+      def mtime
+        File.mtime(File.join(directory, file))
       end
 
     end
@@ -72,12 +140,12 @@ module Backbitr
       make_layout
 
       index_entries = repository.newest(10)
-      Page.new(index_entries, "index.html").make
+      index_entries.to_page("index").make_maybe
 
-      # pages for permalink
-      LOG << "Making pages..."
+      LOG << "  Making pages..."
       repository.entries.each do |e|
-        Page.new(e, "#{e.identifier}.html").make(nil, "#bbr-perma")
+        page = e.to_page
+        page.make_maybe(nil, "#bbr-perma")
       end
       nil
     end
@@ -86,9 +154,9 @@ module Backbitr
       layout_src = File.join(@repository.path, file)
       layout_target = "#{directory}/layout.html"
       layout_cnt = File.readlines(layout_src).join
+      LOG << "  Layout: #{layout_src} => #{layout_target} (#{layout_cnt.size}Bytes)"
       body = Haml::Engine.new(layout_cnt).render
       write(layout_target){|fp| fp.puts body }
-      LOG << "  Creating HTML from #{layout_src} (-> #{layout_target})"
     end
   end
 

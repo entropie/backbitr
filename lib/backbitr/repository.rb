@@ -56,6 +56,10 @@ module Backbitr
       def to_page(file = nil)
         Exporter::Page.new(self, file || "#{identifier}.html")
       end
+
+      def written_file
+        File.join(Backbitr.repository.path, "tmp", "#{identifier}.html.written")
+      end
     end
 
     class Post < Entry
@@ -70,6 +74,20 @@ module Backbitr
 
       def ctime
         File.ctime(path)
+      end
+
+      def mtime
+        File.mtime(path)
+      end
+
+      def need_update?(page_time)
+        if page_time.kind_of?(Time)
+          page_time != mtime
+        else
+          Time.at(File.readlines(page_time).to_s.strip.to_i) != mtime
+        end
+      rescue
+        true
       end
 
       def date
@@ -190,7 +208,7 @@ module Backbitr
         n.kind_of?(Fixnum) ? sorted.first(n) : sorted
       end
 
-      def first(n)
+      def first(n = 1)
         Entries.new(repository).push(*self[0..n])
       end
 
@@ -245,7 +263,7 @@ module Backbitr
     end
 
     def export
-      p Exporter.new(self).export
+      Exporter.new(self).export
     end
   end
 end
