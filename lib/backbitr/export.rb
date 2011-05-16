@@ -6,6 +6,55 @@
 module Backbitr
 
   class Exporter
+
+    class Page
+
+      include FUtils
+
+      attr_reader :entries, :file
+
+      def initialize(entries, file)
+        @entries = entries
+        @entries = [@entries] unless @entries.kind_of?(Array)
+        @file = file
+      end
+
+      def directory
+        @directory ||= File.join(Backbitr.repository.path, "htdocs")
+      end
+
+      def layout
+        Nokogiri::HTML.parse(File.readlines(File.join(directory, "layout.html")).join)
+      end
+
+      def make(lyout = nil, default = nil)
+        skel = lyout || layout
+        LOG << "Exporting #{entries.size} entries to #{@file}..."
+        entries.each do |post|
+          doc = post.to_nokogiri
+          if default.nil? and target = post.metadata.target
+            if node = skel.at_css("#bbr-content #bbr-content-%s" % target)
+              node.add_child(doc)
+            else
+              raise Ex::TargetNotFound, "'#{target}' in metadata declared but not found in document"
+            end
+          elsif node = skel.at_css(default || "#bbr-content > .default")
+            node.add_child(doc)
+          else
+            raise "dont know where to add post, no default given"
+          end
+          LOG << [LOG_DEB, "  added '#{post.title}' (#{post.date}) to #{default or target || 'default'} node"]
+        end
+
+        op_file = File.join(directory, file)
+        write(op_file){|fp|
+          fp.puts skel.to_html
+        }
+        true
+      end
+
+    end
+
     include FUtils
 
     attr_reader :repository
@@ -21,40 +70,16 @@ module Backbitr
     def export
       LOG << "Starting to export to #{directory}"
       make_layout
-      make_page(repository.entries.first(10).sort_by{|e| e.ctime}.reverse, 'index.html')
-      nil
-    end
 
-    def from_file(file)
-      File.join(directory, file)
-    end
+      index_entries = repository.newest(10)
+      Page.new(index_entries, "index.html").make
 
-    def layout
-      Nokogiri::HTML.parse(File.readlines(File.join(directory, "layout.html")).join)
-    end
-
-    def make_page(entries, page)
-      skel = layout
-      LOG << "Exporting #{entries.size} entries to #{page}..."
-      entries.each do |post|
-        doc = post.to_nokogiri
-        if target = post.metadata.target
-          if node = skel.at_css("#bbr-content #bbr-content-%s" % target)
-            node.add_child(doc)
-          else
-            raise Ex::TargetNotFound, "'#{target}' in metadata declared but not found in document"
-          end
-        elsif node = skel.at_css("#bbr-content > .default")
-          node.add_child(doc)
-        else
-          raise "dont know where to add post, no default given"
-        end
-        LOG << [LOG_DEB, "  added '#{post.title}' (#{post.date}) to #{target || 'default'} node"]
+      # pages for permalink
+      LOG << "Making pages..."
+      repository.entries.each do |e|
+        Page.new(e, "#{e.identifier}.html").make(nil, "#bbr-perma")
       end
-      write(File.join(directory, page)){|fp|
-        fp.puts skel.to_html
-      }
-      true
+      nil
     end
 
     def make_layout(file = "layout/layout.haml")
