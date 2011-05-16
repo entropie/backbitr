@@ -1,3 +1,4 @@
+# -*- coding: undecided -*-
 #
 #
 # Author:  Michael 'entropie' Trommer <mictro@gmail.com>
@@ -135,7 +136,7 @@ module Backbitr
       end
 
       def to_nokogiri
-        @nokogiri ||= Nokogiri::HTML::DocumentFragment.parse(html_body)
+        Nokogiri::HTML::DocumentFragment.parse(html_body)
       end
       alias :nokogiro :to_nokogiri
 
@@ -179,11 +180,22 @@ module Backbitr
         }
         self
       end
+
+      def newest(n = nil)
+        all = self
+        sorted = all.sort_by{|e| e.date }.first(10).reverse
+        n.kind_of?(Fixnum) ? sorted.first(n) : sorted
+      end
+
     end
 
     attr_reader :path
 
     include FUtils
+
+    def newest(n = nil)
+      entries.newest(n)
+    end
 
     def entries
       create unless exist?
