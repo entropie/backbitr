@@ -32,7 +32,7 @@ module Backbitr
     def apply(body, rule)
       if body =~ rule
         body.gsub!(rule) do |match|
-          @ytid = if match =~ /https?:\/\// then match[/v=(\w+)/, 1] else p 1; match end
+          @ytid = if match =~ /https?:\/\// then match[/v=(\w+)/, 1] else match end
           LOG << [LOG_DEB, "   applying #{match} -> #{@ytid}"]
           to_html(true)
         end
