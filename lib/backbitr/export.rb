@@ -48,9 +48,9 @@ module Backbitr
           elsif node = skel.at_css(default || "#bbr-content > .default")
             node.add_child(doc)
           else
-            raise "dont know where to add post, no default given"
+            raise "dont know where to add post, no default given (#{post.path})"
           end
-          LOG << [LOG_DEB, "  added '#{post.title}' (#{post.date}) to #{default or target || 'default'} node"]
+          LOG << [LOG_DEB, "added '#{post.title}' (#{post.date}) to #{default or target || 'default'} node"]
         end
 
         entries.each do |e|
@@ -66,10 +66,10 @@ module Backbitr
 
       def make_maybe(*opts)
         if need_update?
-          LOG << [LOG_DEB, "    update #{file} forced"]
+          LOG << [LOG_DEB, "update #{file} forced"]
           make(*opts)
         else
-          LOG << [LOG_DEB, "    skipping page #{file}"]
+          LOG << [LOG_DEB, "skipping page #{file}"]
         end
       end
 
@@ -142,7 +142,7 @@ module Backbitr
       index_entries = repository.newest(10)
       index_entries.to_page("index").make_maybe
 
-      LOG << "  Making pages..."
+      LOG << "Making pages..."
       repository.entries.each do |e|
         page = e.to_page
         page.make_maybe(nil, "#bbr-perma")

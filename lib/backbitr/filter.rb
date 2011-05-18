@@ -60,7 +60,7 @@ module Backbitr
     def apply_rules
       post.filtered = post.body.to_s
       self.class.rules.inject(post.filtered) do |m, r|
-        LOG << [LOG_DEB, "  Filter: #{self.class.to_s.split("::").last}"]
+        LOG << [LOG_DEB, "  Filter: #{self.class.to_s.split("::").last} (#{r})"]
         apply(m, r)
       end
     end
