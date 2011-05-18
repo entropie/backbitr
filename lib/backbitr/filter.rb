@@ -21,8 +21,9 @@ module Backbitr
       def filter!(post)
         load_filter! unless @filter_loaded
         LOG << [LOG_DEB, "Invoking filters for: #{post.title}"]
-        Filter.all.inject(""){|m, filter|
-          filter.new(post).apply_all
+        new_body = post.body.to_s
+        Filter.all.inject(new_body){|m, filter|
+          filter.new(m, post).apply_all
         }
       end
 
@@ -49,8 +50,9 @@ module Backbitr
 
     attr_reader :post
 
-    def initialize(post)
+    def initialize(body, post)
       @post = post
+      @__body__ = body
     end
 
     def nokogiri(data)
@@ -58,8 +60,7 @@ module Backbitr
     end
 
     def apply_rules
-      post.filtered = post.body.to_s
-      self.class.rules.inject(post.filtered) do |m, r|
+      self.class.rules.inject(@__body__) do |m, r|
         LOG << [LOG_DEB, "  Filter: #{self.class.to_s.split("::").last} (#{r})"]
         apply(m, r)
       end
