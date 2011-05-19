@@ -99,16 +99,12 @@ module Backbitr
           logwhat = nil
           @date =
             if mdate = metadata[:date]
-              logwhat = "metadata"
               Time.local(*mdate.split("-").map{|s| s.to_i})
             elsif mdate = parse_basename.first
-              logwhat = "filename"
               mdate
             else
-              logwhat = "File.ctime"
               ctime
             end
-          LOG << [LOG_DEB, "Selecting date from #{logwhat}: #{@date}"]
         end
         @date
       end
