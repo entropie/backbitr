@@ -7,15 +7,15 @@ require "backbitr"
 require "optparse"
 
 opts = OptionParser.new do |opts|
-  opts.banner = "backbitr"
+  opts.banner = "backbitr (#{Backbitr.version})"
 
-  opts.on("-S", "--setup <PATH>", "Sets up a new backbitr repository in PATH") do |arg|
+  opts.on("-S", "--setup PATH", "Sets up a new backbitr repository in PATH") do |arg|
     Backbitr.repository.create
     exit 0
   end
 
-  opts.on("-L", "--long-list", "Prints recent posts to STDOUT") do |arg|
-    Backbitr.repository.entries.first(10).each do |post|
+  opts.on("-L", "--long-list", "Prints recent posts completely to STDOUT") do |arg|
+    Backbitr.repository.entries.newest(10).each do |post|
       puts post.to_s
       puts(("-"*60).white)
     end
@@ -30,17 +30,17 @@ opts = OptionParser.new do |opts|
     exit 0
   end
 
-  opts.on("-H", "--html", "Prints recent posts to STDOUT") do |arg|
-    Backbitr.repository.entries.first(10).each do |post|
-      puts post.with_filter
-      puts(("-"*60).white)
-    end
+  opts.on("-X", "--export", "Generates HTML-Files") do |arg|
+    Backbitr.repository.export
     exit 0
   end
 
-  opts.on("-X", "--export", "Prints recent posts to STDOUT") do |arg|
-    Backbitr.repository.export
-    exit 0
+  opts.on_tail("-h", "--help", "Help") do
+    puts opts
+  end
+
+  opts.on_tail("--version", "Show version") do
+    puts Backbitr.version
   end
 
 end
@@ -52,6 +52,9 @@ rescue OptionParser::InvalidOption
   puts "bbr: #{$!.message}"
   puts "bbr: try 'bbr --help' for more information"
   exit 1
+rescue OptionParser::MissingArgument
+  puts $!, ''
+  puts opts
 end
 
 
