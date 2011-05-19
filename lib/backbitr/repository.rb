@@ -41,7 +41,7 @@ module Backbitr
         when "textile"
           Post.new(file)
         else
-          raise "ops"
+          nil
         end
       end
 
@@ -59,6 +59,10 @@ module Backbitr
 
       def written_file
         File.join(Backbitr.repository.path, "tmp", "#{identifier}.html.written")
+      end
+
+      def dir
+        FUtils::repository(:htdocs, identifier[2..-1])
       end
     end
 
@@ -197,14 +201,15 @@ module Backbitr
       def read!(path = "posts")
         dir_pattern = "#{repository.path}/#{path}/**/*"
         Dir[dir_pattern].each{|entry|
-          push Entry.select_for(entry)
+          entry = Entry.select_for(entry)
+          push(entry) if entry
         }
         self
       end
 
       def newest(n = nil)
         all = self
-        sorted = Entries.new(repository).push(*all.sort_by{|e| e.date }.first(10).reverse)
+        sorted = Entries.new(repository).push(*all.sort_by{|e| e.date }.reverse)
         n.kind_of?(Fixnum) ? sorted.first(n) : sorted
       end
 
