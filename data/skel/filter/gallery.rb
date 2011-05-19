@@ -7,6 +7,7 @@
 require "open-uri"
 
 module Backbitr
+  # http://coffeescripter.com/code/ad-gallery/
   class Gallery < Filter
 
     rule /^textile_gallery: (.*)$/i
@@ -19,16 +20,25 @@ module Backbitr
       GALLERY_BASE_URL + url.to_s
     end
 
+    def html_body
+      %Q'<div class="bbr-textile-gallery">'+
+        %Q'<div class="ad-gallery"><div class="ad-image-wrapper"></div><div class="ad-controls"></div>' +
+        %Q'<div class="ad-nav"><div class="ad-thumbs"><ul class="ad-thumb-list">%s</ul></div>' +
+        %Q'</div></div>'
+    end
+
     def apply(body, rule)
       if body =~ rule
         body.gsub!(rule) do |match|
           textile = "%s.textile" % match.gsub("textile_gallery: ", '')
           list = open(url(textile))
           html = list.readlines.select{|e| not e.strip.empty?}.map{|l|
-            "<img src='%s' height='#{HEIGHT}' width='#{WIDTH}' />" % url(l[3..-1].strip[0..-2])
+            url = url(l[3..-1].strip[0..-2])
+            "<li><a href='%s'><img src='%s' height='#{HEIGHT}' width='#{WIDTH}' /></a></li>" % [url, url]
           }
           LOG << [LOG_DEB, "   gallery (#{textile}) contains #{html.size} image(s)"]
-          ("<div class='bbr-textile-gallery'>%s</div>" % html[0..6].join).to_s
+          gallery_html = "%s</div>" % html.join
+          html_body % gallery_html
         end
       end
       body
