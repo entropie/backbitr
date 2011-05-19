@@ -6,6 +6,12 @@
 module Backbitr
 
   module FUtils
+
+    def repository(*a)
+      File.join(Backbitr.repository.path, *a.map{|a| a.to_s})
+    end
+    module_function :repository
+
     def mkdir_p(arg)
       LOG << "mkdir_p '#{arg.to_s}'"
       FileUtils.mkdir_p(arg)
