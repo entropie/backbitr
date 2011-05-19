@@ -46,6 +46,19 @@ module Backbitr
       def rule(obj)
         self.rules << obj
       end
+
+      def parse_opts(opts)
+        ropts = {}
+        opts.map{|o| o.strip}.each do |opt|
+          if opt =~ /^style:/
+            ropts[:style] = opt[6..-1]
+          else
+            key, value = opt.split(":")
+            ropts[key.to_sym] = value
+           end
+        end
+        ropts
+      end
     end
 
     attr_reader :post
