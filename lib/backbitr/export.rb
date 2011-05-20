@@ -33,8 +33,18 @@ module Backbitr
         Nokogiri::HTML.parse(File.readlines(File.join(directory, layout_file)).join)
       end
 
+      def modify_base_path!(skel)
+        fs = file.split("/").size
+        if fs != 1
+          href = "../"*(fs-1)
+          LOG << "Modifying <base> to #{href} for #{file}"
+          skel.at_css("head base")["href"] = href
+        end
+      end
+
       def make(lyout = nil, default = nil)
         skel = lyout || layout
+        modify_base_path!(skel)
         LOG << "    Exporting #{entries.size} entries to #{@file}..."
         wa = written_at
         entries.each do |post|
@@ -68,13 +78,20 @@ module Backbitr
         if need_update?
           LOG << [LOG_DEB, "update #{file} forced"]
           make(*opts)
+          yield self if block_given?
         else
           LOG << [LOG_DEB, "skipping page #{file}"]
         end
+        self
+      end
+
+      def normalize_file(nfile)
+        nfile.gsub(/\//, "_")
       end
 
       def written_file(nfile = nil)
         nf = nfile || file
+        nf = normalize_file(nf)
         File.join(Backbitr.repository.path, "tmp", "#{nf}.written")
       end
 
@@ -139,13 +156,23 @@ module Backbitr
       LOG << "Starting to export to #{directory}"
       make_layout
 
+      LOG << "Making index..."
       index_entries = repository.newest(10)
       index_entries.to_page("index").make_maybe
 
-      LOG << "Making pages..."
+      LOG << "Making individual pages..."
+      tags = []
       repository.entries.each do |e|
         page = e.to_page
-        page.make_maybe(nil, "#bbr-perma")
+        page.make_maybe(nil, "#bbr-perma") do |pg|
+          tags.push(*pg.entries[0].metadata.tags)
+        end
+      end
+
+      mkdir_p(File.join(directory, "t"))
+      LOG << "Making Tags (#{tags.join(",")})..."
+      tags.uniq.each do |tag|
+        repository.by_tag(tag).to_page("t/#{tag}.html").make
       end
       nil
     end

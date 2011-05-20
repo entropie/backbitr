@@ -203,6 +203,11 @@ module Backbitr
         self
       end
 
+      def by_tag(tag)
+        tag = tag.to_sym
+        Entries.new(repository).push(*select{|entry| entry.metadata.tags.include?(tag)})
+      end
+
       def newest(n = nil)
         all = self
         sorted = Entries.new(repository).push(*all.sort_by{|e| e.date }.reverse)
@@ -243,6 +248,11 @@ module Backbitr
 
     def inspect
       %Q'<BBR: "#{path}">'
+    end
+
+    def by_tag(tag)
+      tag = tag.to_sym
+      Entries.new(self).push(*entries.select{|entry| entry.metadata.tags.include?(tag)})
     end
 
     def exist?
