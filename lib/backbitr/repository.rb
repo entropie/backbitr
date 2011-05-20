@@ -80,9 +80,6 @@ module Backbitr
         FUtils::repository(:htdocs, identifier[2..-1])
       end
 
-      def archive!
-        yield self.extend(Archiveble)
-      end
     end
 
     class Post < Entry
