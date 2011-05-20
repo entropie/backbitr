@@ -172,7 +172,7 @@ module Backbitr
       mkdir_p(File.join(directory, "t"))
       LOG << "Making Tags (#{tags.join(",")})..."
       tags.uniq.each do |tag|
-        repository.by_tag(tag).to_page("t/#{tag}.html").make
+        repository.by_tag(tag).newest.to_page("t/#{tag}.html").make
       end
       nil
     end
