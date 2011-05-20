@@ -27,6 +27,34 @@ module Backbitr
       end
     end
 
+    module Archiveble
+
+      def filename
+      end
+
+      def date_to_filename(date = nil, what = :entry)
+        date = respond_to?(:date) ? self.date : date
+        "archive/" +
+          case what
+          when :entry
+            date.strftime("%Y/%m/") + title
+          when :month
+            date.strftime("%Y/%B.textile")
+          else
+            date.strftime("%Y.textile")
+          end
+      end
+      module_function :date_to_filename
+      
+      def export_to_archive(opts = {})
+        [:entry, :month, :year].each do |what|
+          filename = date_to_filename(what)
+          p filename
+        end
+        nil
+      end
+    end
+
     class Entry
 
       attr_reader :path
@@ -63,6 +91,10 @@ module Backbitr
 
       def dir
         FUtils::repository(:htdocs, identifier[2..-1])
+      end
+
+      def archive!
+        yield self.extend(Archiveble)
       end
     end
 
@@ -189,6 +221,7 @@ module Backbitr
     class Entries < Array
 
       attr_reader :repository
+
       def initialize(repos)
         @repository = repos
         super()
@@ -201,6 +234,74 @@ module Backbitr
           push(entry) if entry
         }
         self
+      end
+
+      def hash
+        Hash.new{|h,k| h[k] = Entries.new(repository) }
+      end
+
+      def by_years(year = nil, &blk)
+        ret = hash
+        if not year
+          map{|e| e.date.year}.uniq.each { |year|
+            ret[year] = by_years(year)
+          }
+        else
+          ret = Entries.new(repository).push(*select{|e| e.date.year == year})
+        end
+        ret
+      end
+
+      def by_months(year = nil, month = nil, &blk)
+        ret = hash
+        if year.nil?
+          by_years.each_pair{|h,k|
+            ret[h] = by_months(h)
+          }
+        elsif month.nil?
+          by_years[year].each do |entry|
+            (ret[entry.date.month] ||= Entries.new(repository)) << entry
+          end
+        else
+          return by_years[year]
+        end
+        ret
+      end
+
+      def by_days(year = nil, month = nil, day = nil, &blk)
+        r = hash
+        months = by_months
+        months.keys.each do |year|
+          r[year] = hash
+          months[year].each do |m, es|
+            m=months[year][m] = hash
+            es.each{|e|
+              m[e.date.day] ||= Entries.new(repository)
+              m[e.date.day] << e
+            }
+          end
+        end
+        months
+      end
+
+      def archive!
+        write = proc{|str, es|
+          es = Entries.new(repository).push(*es.values.flatten)
+          fn = "archive/#{str}"
+          es.newest.to_page(fn).make_maybe
+        }
+
+        by_months.each do |y, ye|
+          write.call("#{y}.html", ye)
+          by_months(y).each do |m, me|
+            write.call("#{y}/#{m}.html", {m => me})
+            me.map{|d| d.date.day}.uniq.each do |d|
+              day_posts = by_days[y][m][d]
+              write.call("#{y}/#{m}/#{d}.html", {d => day_posts})
+            end
+          end
+        end
+        true
       end
 
       def by_tag(tag)
@@ -276,6 +377,13 @@ module Backbitr
     def export
       Exporter.new(self).export
     end
+
+    def archive_export
+      archive_path = File.join(path, "htdocs", 'archive')
+      mkdir_p(archive_path)
+      Exporter.new(self).archive_export
+    end
+
   end
 end
 

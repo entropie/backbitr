@@ -68,6 +68,7 @@ module Backbitr
         end if entries.size == 1
 
         write_written_at!
+        mkdir_p(File.dirname(op_file))
         write(op_file){|fp|
           fp.puts skel.to_html
         }
@@ -101,15 +102,13 @@ module Backbitr
       end
 
       def need_update?
-        ret = []
-        if entries.any?{|e| e.need_update?(e.written_file) }
-          ret << true
-        # elsif mtime != written_at
-        #   ret << true
+        if written_at != mtime
+          true
+        elsif entries.any?{|e| e.need_update?(e.written_file) }
+          true
         else
-          ret << false
+          false
         end
-        ret.include?(true)
       end
 
       def op_file
@@ -135,7 +134,7 @@ module Backbitr
       end
 
       def mtime
-        File.mtime(File.join(directory, file))
+        File.mtime(File.join(directory, file)) rescue Time.now
       end
 
     end
@@ -148,8 +147,8 @@ module Backbitr
       @repository = repos || Backbitr.repository
     end
 
-    def directory
-      @directory ||= File.join(@repository.path, "htdocs")
+    def directory(*args)
+      @directory ||= File.join(@repository.path, "htdocs", *args.map{|a| a.to_s})
     end
 
     def export
@@ -169,12 +168,19 @@ module Backbitr
         end
       end
 
-      mkdir_p(File.join(directory, "t"))
-      LOG << "Making Tags (#{tags.join(",")})..."
-      tags.uniq.each do |tag|
-        repository.by_tag(tag).newest.to_page("t/#{tag}.html").make
+      unless tags.empty?
+        mkdir_p(File.join(directory, "t"))
+        LOG << "Making Tags (#{tags.join(",")})..."
+        tags.uniq.each do |tag|
+          repository.by_tag(tag).newest.to_page("t/#{tag}.html").make
+        end
       end
       nil
+    end
+
+    def archive_export
+      LOG << "Starting to export the archive to #{directory(:archive)}"
+      repository.entries.archive!
     end
 
     def make_layout(file = "layout/layout.haml")
