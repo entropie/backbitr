@@ -14,7 +14,7 @@ module Backbitr
       kws = {
         :date => post.date,
         :tags => "<ul>" + tags.map{|t|
-          "<li><a href='./tag/#{t}' class='awesome silver small'>#{t}</a></li>"
+          "<li><a href='./t/#{t}.html' class='awesome silver small'>#{t}</a></li>"
         }.join + "</ul>",
         :permalink => "<a href='./#{post.identifier}.html'>&middot;</a>"
       }
