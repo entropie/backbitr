@@ -56,6 +56,15 @@ module Backbitr
   class << self
     attr_reader :repository
 
+    def sync(file = nil)
+      file ||= File.join(repository.path, 'rsync.txt')
+      if File.exist?(file)
+        `sh #{file}`
+      else
+        warn "#{file} does not exist"
+      end
+    end
+
     def version
       suffx = if Version.size > 3 then Version.last end
       "backbitr-#{Version[0...3].join(".")}#{suffx and "-#{suffx}"}"

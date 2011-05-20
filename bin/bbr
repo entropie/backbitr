@@ -42,6 +42,11 @@ opts = OptionParser.new do |opts|
     exit 0
   end
 
+  opts.on("-s [FILE]", "--sync", "Sync via rsync.txt") do |file|
+    Backbitr.sync(file)
+    exit 0
+  end
+
   opts.on_tail("-h", "--help", "Help") do
     puts opts
   end
