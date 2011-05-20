@@ -27,33 +27,20 @@ module Backbitr
       end
     end
 
-    module Archiveble
 
-      def filename
-      end
-
-      def date_to_filename(date = nil, what = :entry)
-        date = respond_to?(:date) ? self.date : date
-        "archive/" +
-          case what
-          when :entry
-            date.strftime("%Y/%m/") + title
-          when :month
-            date.strftime("%Y/%B.textile")
-          else
-            date.strftime("%Y.textile")
-          end
-      end
-      module_function :date_to_filename
-      
-      def export_to_archive(opts = {})
-        [:entry, :month, :year].each do |what|
-          filename = date_to_filename(what)
-          p filename
-        end
-        nil
-      end
-    end
+      # def date_to_filename(date = nil, what = :entry)
+      #   date = respond_to?(:date) ? self.date : date
+      #   "archive/" +
+      #     case what
+      #     when :entry
+      #       date.strftime("%Y/%m/") + title
+      #     when :month
+      #       date.strftime("%Y/%B.textile")
+      #     else
+      #       date.strftime("%Y.textile")
+      #     end
+      # end
+      # module_function :date_to_filename
 
     class Entry
 
