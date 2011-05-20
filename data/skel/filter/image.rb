@@ -115,8 +115,8 @@ module Backbitr
 
     def to_html(which = nil, opts = {})
       ostr = opts.map{|o| '%s="%s"' % o}.join(" ")
-      %Q'<a class="bbr-imglink" href="#{http_path(:orginal)}">' + 
-        %Q'<img #{ostr} src="#{http_path(which)}" width="#{width(which)}" height="#{height(which)}" /></a>'
+      %Q'<div class="bbr-img"><a class="bbr-imglink" href="#{http_path(:orginal)}">' + 
+        %Q'<img #{ostr} src="#{http_path(which)}" width="#{width(which)}" height="#{height(which)}" /></a></div>'
     end
   end
 end

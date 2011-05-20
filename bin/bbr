@@ -30,6 +30,13 @@ opts = OptionParser.new do |opts|
     exit 0
   end
 
+  opts.on("-A", "--list-all", "Prints recent posts to STDOUT") do |arg|
+    Backbitr.repository.entries.first(10).each do |post|
+      p post
+    end
+    exit 0
+  end
+
   opts.on("-X", "--export", "Generates HTML-Files") do |arg|
     Backbitr.repository.export
     exit 0
