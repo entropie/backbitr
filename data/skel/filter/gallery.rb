@@ -5,6 +5,7 @@
 
 
 require "open-uri"
+require "timeout"
 
 module Backbitr
   # http://coffeescripter.com/code/ad-gallery/
@@ -31,7 +32,16 @@ module Backbitr
       if body =~ rule
         body.gsub!(rule) do |match|
           textile = "%s.textile" % match.gsub("textile_gallery: ", '')
-          list = open(url(textile))
+          begin
+            Timeout.timeout(5) do
+              list = open(url(textile))
+            end
+          rescue Timeout::Error
+            str = "!!! no connected to endpoint (server down)"
+            LOG << str
+            return str
+          end
+
           html = list.readlines.select{|e| not e.strip.empty?}.map{|l|
             url = url(l[3..-1].strip[0..-2])
             "<li><a href='%s'><img src='%s' height='#{HEIGHT}' width='#{WIDTH}' /></a></li>" % [url, url]
