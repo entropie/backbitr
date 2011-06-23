@@ -13,6 +13,7 @@ module Backbitr
     module_function :repository
 
     def mkdir_p(arg)
+      return if File.exist?(arg)
       LOG << "mkdir_p '#{arg.to_s}'"
       FileUtils.mkdir_p(arg)
     end
