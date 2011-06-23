@@ -31,7 +31,7 @@ opts = OptionParser.new do |opts|
   end
 
   opts.on("-a", "--list-all", "Prints recent posts to STDOUT") do |arg|
-    Backbitr.repository.entries.first(10).each do |post|
+    Backbitr.repository.entries.each do |post|
       p post
     end
     exit 0
@@ -49,6 +49,7 @@ opts = OptionParser.new do |opts|
 
 
   opts.on("-s [FILE]", "--sync", "Sync via rsync.txt") do |file|
+    puts "Syncing..."
     Backbitr.sync(file)
     exit 0
   end
