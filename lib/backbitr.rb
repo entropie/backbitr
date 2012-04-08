@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 #
 # Author:  Michael 'entropie' Trommer <mictro@gmail.com>
@@ -12,24 +13,15 @@ require "RedCloth"
 require "term/ansicolor"
 require "haml"
 
-class String
-  include Term::ANSIColor
-end
-
-class Time
-  def to_s(what = :def)
-    fmtstr =
-      case what
-      when :def
-        "%Y-%m-%d"
-      end
-    strftime(fmtstr)
-  end
-end
-
 module Backbitr
 
   Source  = File.dirname(File.dirname(File.expand_path(__FILE__)))
+
+  def Source.join(*args)
+    File.join(Source, *args)
+  end
+
+  Dir["#{Source.join("lib/backbitr/builtins")}/*.rb"].each{ |builtin| require builtin}
 
   $: << File.join(Source, 'lib')
 
@@ -75,7 +67,7 @@ module Backbitr
     end
 
     def repository
-      self.repository = DefaultRepository
+      self.repository = DefaultRepository unless @repository
       Repository.new(@repository)
     end
 

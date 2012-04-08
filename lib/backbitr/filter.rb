@@ -59,7 +59,8 @@ module Backbitr
         end
         ropts
       end
-    end
+
+    end                         # // self
 
     attr_reader :post
 
@@ -74,7 +75,7 @@ module Backbitr
 
     def apply_rules
       self.class.rules.inject(@__body__) do |m, r|
-        LOG << [LOG_DEB, "  Filter: #{self.class.to_s.split("::").last} (#{r})"]
+        #LOG << [LOG_DEB, "  Filter: #{self.class.to_s.split("::").last} (#{r})"]
         apply(m, r)
       end
     end

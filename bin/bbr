@@ -9,7 +9,14 @@ require "optparse"
 opts = OptionParser.new do |opts|
   opts.banner = "backbitr (#{Backbitr.version})"
 
+  opts.on("-u", "--use PATH", "Use Specifc backbitr repository in PATH") do |arg|
+    Backbitr.repository = arg
+  end
+
   opts.on("-S", "--setup PATH", "Sets up a new backbitr repository in PATH") do |arg|
+    Backbitr.repository = arg
+    # p Backbitr.repository
+    # exit
     Backbitr.repository.create
     exit 0
   end
@@ -55,6 +62,7 @@ opts = OptionParser.new do |opts|
   end
 
   opts.on_tail("-h", "--help", "Help") do
+    p Backbitr.repository
     puts opts
   end
 
