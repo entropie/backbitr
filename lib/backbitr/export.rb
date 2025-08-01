@@ -1,9 +1,3 @@
-# -*- coding: undecided -*-
-#
-#
-# Author:  Michael 'entropie' Trommer <mictro@gmail.com>
-#
-
 module Backbitr
 
   class Exporter
@@ -98,6 +92,12 @@ module Backbitr
 
       def write_written_at!
         ts = Time.now
+
+        writen_file_dirname = File.dirname(written_file)
+        unless File.exist?(writen_file_dirname)
+          FileUtils.mkdir_p(writen_file_dirname, verbose: true)
+        end
+
         File.open(written_file, 'w+'){|fp| fp.puts(ts.to_i)}
       end
 
@@ -188,7 +188,8 @@ module Backbitr
       layout_target = "#{directory}/layout.html"
       layout_cnt = File.readlines(layout_src).join
       LOG << "  Layout: #{layout_src} => #{layout_target} (#{layout_cnt.size}Bytes)"
-      body = Haml::Engine.new(layout_cnt).render
+
+      body = Haml::Template.new { layout_cnt }.render
       write(layout_target){|fp| fp.puts body }
     end
   end

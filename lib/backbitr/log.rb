@@ -1,8 +1,3 @@
-#
-#
-# Author:  Michael 'entropie' Trommer <mictro@gmail.com>
-#
-
 module Backbitr
 
   class LOG

@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-#
-#
-# Author:  Michael 'entropie' Trommer <mictro@gmail.com>
-#
-
 module Backbitr
 
   class Filter
@@ -70,7 +64,7 @@ module Backbitr
     end
 
     def nokogiri(data)
-      Nokogiri::HTML::DocumentFragment.parse(data)
+      XML::DocumentFragment.parse(data)
     end
 
     def apply_rules

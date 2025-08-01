@@ -1,9 +1,4 @@
-# -*- coding: undecided -*-
-#
-#
-# Author:  Michael 'entropie' Trommer <mictro@gmail.com>
-#
-
+require "date"
 [ :MONTHNAMES, :DAYNAMES, :ABBR_MONTHNAMES, :ABBR_DAYNAMES ].each do |const|
   Date.send(:remove_const, const)
   Time.send(:remove_const, const) rescue nil

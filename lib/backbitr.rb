@@ -59,7 +59,8 @@ module Backbitr
 
     def version
       suffx = if Version.size > 3 then Version.last end
-      "backbitr-#{Version[0...3].join(".")}#{suffx and "-#{suffx}"}"
+      ver = Version[0...3].join(".")
+      "backbitr-#{ver}#{suffx and "-%s"}" % ver
     end
 
     def repository=(repos)

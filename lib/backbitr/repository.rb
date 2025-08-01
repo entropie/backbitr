@@ -1,9 +1,3 @@
-# -*- coding: undecided -*-
-#
-#
-# Author:  Michael 'entropie' Trommer <mictro@gmail.com>
-#
-
 module Backbitr
   class Repository
 
@@ -296,7 +290,7 @@ module Backbitr
       def newest(n = nil)
         all = self
         sorted = Entries.new(repository).push(*all.sort_by{|e| e.date }.reverse)
-        n.kind_of?(Fixnum) ? sorted.first(n) : sorted
+        n.kind_of?(Integer) ? sorted.first(n) : sorted
       end
 
       def first(n = 1)
